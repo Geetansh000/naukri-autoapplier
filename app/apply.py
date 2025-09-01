@@ -49,7 +49,6 @@ def apply_to_job(driver, job_url):
 
     # Fetch job data
     job_data = fetch_job_details(job_id, headers)
-    print(f"ℹ️ Fetched job data for {job_id}:", json.dumps(job_data, indent=2))
     if not job_data:
         print(f"❌ Could not fetch job details for {job_id}. Skipping...")
         return
