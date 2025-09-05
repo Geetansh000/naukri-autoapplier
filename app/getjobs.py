@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from .db import already_applied, mark_applied
 from .apply import apply_to_job
+from .apply_web import apply_web
 
 def apply_once(driver, str1, PAGE=1):
     url = SEARCH_URL.replace("?", str1)
@@ -38,9 +39,11 @@ def apply_once(driver, str1, PAGE=1):
                 if already_applied(link):
                     print(f"🔁 Already applied: {link}")
                     continue
+                if(apply_web(driver, link)):
+                    print(f"✅ Applied to job: {link}")
+                    mark_applied(link)
+                    continue
                 apply_to_job(driver, link)
-                mark_applied(link)
-                time.sleep(1)
             except Exception as e:
                 print(f"⚠️ Error while applying to job: {e}")
         print("✅ All jobs processed.")

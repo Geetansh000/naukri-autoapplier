@@ -28,5 +28,5 @@ QUERY = "nodejs nestjs"  # os.getenv("SEARCH_QUERY", "software engineer")
 print(f"🔍 Searching for: {QUERY}")
 LOC = os.getenv("SEARCH_LOCATION", "Bangalore")
 EXP = os.getenv("SEARCH_EXP", "2")  # default to 0-2 years experience
-SEARCH_URL = f"https://www.naukri.com/{QUERY.replace(' ', '-')}-jobs?experience={EXP}&jobAge=2&glbl_qcrc=1028&ctcFilter=6to10&ctcFilter=10to15"
+SEARCH_URL = f"https://www.naukri.com/{QUERY.replace(' ', '-')}-jobs?experience={EXP}&jobAge=1&glbl_qcrc=1028&ctcFilter=6to10&ctcFilter=10to15"
 LOGIN_URL = "https://www.naukri.com/mnjuser/homepage"
