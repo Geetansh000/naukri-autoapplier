@@ -2,3 +2,5 @@ venv
 .venv
 app/__pycache__
 .env
+answers.txt
+app/answers.json

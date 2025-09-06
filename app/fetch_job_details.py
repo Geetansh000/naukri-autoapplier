@@ -6,7 +6,7 @@ from .config import SKIP_WORDS, MUST_HAVE_WORDS
 
 
 def fetch_job_details(job_id, headers):
-    url = f"https://www.naukri.com/jobapi/v4/job/{job_id}?microsite=y&src=cluster&sid=17513733396487352_2&xp=1&px=1&nignbevent_src=jobsearchDeskGNB"
+    url = f"https://www.naukri.com/jobapi/v4/job/{job_id}?microsite=y&brandedConsultantJd=true&src=jobsearchDesk&sid=17571302630938744&xp=3&px=1&nignbevent_src=jobsearchDeskGNB"
     try:
         response = requests.get(url, headers=headers)
 
