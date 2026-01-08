@@ -15,7 +15,6 @@ def run():
         login(driver)
         print("📍 Navigating to search after login redirect...")
         driver.get(SEARCH_URL)
-        time.sleep(2)
         apply_once(driver, "?", 1)
     finally:
         driver.quit()

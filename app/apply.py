@@ -26,27 +26,13 @@ def apply_to_job(driver, job_url):
 
     auth_token = session.cookies.get("nauk_at", "")
     headers = {
-        "accept": "application/json",
-        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
         "appid": "121",
         "authorization": f"Bearer {auth_token}",
-        "clientid": "d3skt0p",
-        "content-type": "application/json",
         "gid": "LOCATION,INDUSTRY,EDUCATION,FAREA_ROLE",
-        "nkparam": "",
-        "priority": "u=1, i",
-        "referer": job_url,
-        "sec-ch-ua": '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"Linux"',
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
         "systemid": "Naukri",
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
         "Cookie": cookie_str,
     }
-
+    print("headers",headers)
     # Fetch job data
     job_data = fetch_job_details(job_id, headers)
     if not job_data:

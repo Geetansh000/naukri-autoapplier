@@ -13,7 +13,7 @@ PAUSE_ON_ERROR = True
 
 
 def apply_web(driver, url):
-    wait = WebDriverWait(driver, 1)
+    wait = WebDriverWait(driver, 3)
     print(f"🔗 Navigating to job URL: {url}")
     driver.get(url)
     time.sleep(1)
@@ -37,7 +37,7 @@ def apply_web(driver, url):
                         return True
                     case "apply on company site":
                         print("❌ External application. Skipping.")
-                        return
+                        return True
                     case "i am interested":
                         print("❌ Walkin application. Skipping.")
                         return True

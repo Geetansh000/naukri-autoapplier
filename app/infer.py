@@ -17,11 +17,18 @@ def infer_answer(question_name: str, options=None) -> str:
         return EXAMPLE_ANSWERS[match[0]]
 
     print("💬 Asking OpenAI for answer:", question_name)
-    with open("answers.txt", "w") as f:
-        f.write(question_name + "\t")
-        if options:
-            f.write("Options: " + ", ".join(options) + "\t")
-        f.write("\n")
+    try:
+        with open("answers.txt", "a") as f:
+            f.write(question_name + "\t")
+            if options:
+                f.write("Options: " + ", ".join(options) + "\t")
+            f.write("\n")
+    except FileNotFoundError:
+        with open("answers.txt", "w") as f:
+            f.write(question_name + "\t")
+            if options:
+                f.write("Options: " + ", ".join(options) + "\t")
+            f.write("\n")
     try:
         print("🔗 Using OpenAI to infer answer...")
         # return generate_response(question_name, options)
