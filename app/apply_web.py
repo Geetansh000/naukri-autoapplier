@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from .db import save_external_job
 from app.infer import infer_answer
 import pyautogui
-from .config import SKIP_WORDS, MUST_HAVE_WORDS
+from .config import SKIP_WORDS, MUST_HAVE_WORDS, AUTHOR_NAME
 import re
 
 PAUSE_ON_ERROR = True
@@ -262,7 +262,7 @@ def apply_web(driver, url):
                     else:
                         try:
                             question_text = last_ques.text
-                            if question_text == "Hi Geetansh Sharma, thank you for showing interest. Kindly answer all the recruiter's questions to successfully apply for the job.":
+                            if question_text == f"Hi {AUTHOR_NAME}, thank you for showing interest. Kindly answer all the recruiter's questions to successfully apply for the job.":
                                 last_question_elem = driver.find_element(
                                     By.XPATH, "//li[contains(@class, 'botMsg')]/div/div/span")
                                 question_text = last_question_elem.text

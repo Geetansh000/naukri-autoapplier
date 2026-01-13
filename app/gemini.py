@@ -2,8 +2,8 @@ import os
 import google.generativeai as genai
 import re
 import time
-from .bio import GEETANSH_BIO
-from .config import GOOGLE_API_KEY
+from .bio import BIO
+from .config import GOOGLE_API_KEY, AUTHOR_NAME
 
 genai.configure(api_key=GOOGLE_API_KEY)
 
@@ -18,8 +18,8 @@ generation_config = {
 model = genai.GenerativeModel(
     model_name="gemini-2.0-flash",
     generation_config=generation_config,
-    system_instruction="""
-You are Geetansh Sharma, a backend developer.
+    system_instruction=f"""
+You are {AUTHOR_NAME}, a backend developer.
 Answer strictly from the resume.
 Rules:
 - For multiple choice: return ONLY the correct option
@@ -34,7 +34,7 @@ Rules:
 
 chat_session = model.start_chat(
     history=[
-        {"role": "user", "parts": [GEETANSH_BIO]},
+        {"role": "user", "parts": [BIO]},
         {"role": "model", "parts": ["Resume loaded."]},
 
         {"role": "user", "parts": [
@@ -51,7 +51,7 @@ chat_session = model.start_chat(
 def bard_flash_response(question) -> str:
     max_retries = 3
     retry_delay = 2
-    
+
     for attempt in range(max_retries):
         try:
             response = chat_session.send_message(question)
@@ -83,12 +83,14 @@ def bard_flash_response(question) -> str:
             # Check if it's a rate limit error (429)
             if "429" in error_msg or "quota" in error_msg.lower():
                 if attempt < max_retries - 1:
-                    wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
-                    print(f"⏳ Rate limited. Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                    wait_time = retry_delay * \
+                        (2 ** attempt)  # Exponential backoff
+                    print(
+                        f"⏳ Rate limited. Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
                     time.sleep(wait_time)
                     continue
-            
+
             print(f"❌ AI Error: {e}")
             return "2"  # safest fallback for experience
-    
+
     return "2"  # final fallback
