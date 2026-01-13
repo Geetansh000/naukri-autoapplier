@@ -1,13 +1,9 @@
 import os
 import google.generativeai as genai
 import re
+import time
 from .bio import GEETANSH_BIO
 from .config import GOOGLE_API_KEY
-
-# Load resume
-# with open("resume.json", "r") as f:
-#     resume_json = json.load(f)
-# resume_json_str = json.dumps(resume_json, indent=2)
 
 genai.configure(api_key=GOOGLE_API_KEY)
 
@@ -20,7 +16,7 @@ generation_config = {
 }
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-2.0-flash",
     generation_config=generation_config,
     system_instruction="""
 You are Geetansh Sharma, a backend developer.
@@ -53,31 +49,46 @@ chat_session = model.start_chat(
 
 
 def bard_flash_response(question) -> str:
-    try:
-        response = chat_session.send_message(question)
-        raw_text = response.text.strip()
-        print(f"🤖 AI Raw: '{raw_text}'")
+    max_retries = 3
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            response = chat_session.send_message(question)
+            raw_text = response.text.strip()
+            print(f"🤖 AI Raw: '{raw_text}'")
 
-        # If the question is about "experience" or "years", we want a single digit
-        if any(word in question.lower() for word in ['experience', 'years', 'year', 'how long']):
-            # Extract all numbers
-            numbers = re.findall(r'\b\d+\b', raw_text)
-            # Return the first number that makes sense (1-5 years)
-            for num in numbers:
-                n = int(num)
-                if 1 <= n <= 5:
-                    return num
-            return "2"  # fallback: you have ~2 years
+            # If the question is about "experience" or "years", we want a single digit
+            if any(word in question.lower() for word in ['experience', 'years', 'year', 'how long']):
+                # Extract all numbers
+                numbers = re.findall(r'\b\d+\b', raw_text)
+                # Return the first number that makes sense (1-5 years)
+                for num in numbers:
+                    n = int(num)
+                    if 1 <= n <= 5:
+                        return num
+                return "2"  # fallback: you have ~2 years
 
-        # For multiple choice (has "1.", "2.", etc.)
-        if re.search(r'\b\d+\.', question):
-            numbers = re.findall(r'\b\d+\b', raw_text)
-            return numbers[0] if numbers else "1"
+            # For multiple choice (has "1.", "2.", etc.)
+            if re.search(r'\b\d+\.', question):
+                numbers = re.findall(r'\b\d+\b', raw_text)
+                return numbers[0] if numbers else "1"
 
-        # Clean up text answers
-        cleaned = re.sub(r'[^\w\s]', '', raw_text).strip()
-        return cleaned or "Not available"
+            # Clean up text answers
+            cleaned = re.sub(r'[^\w\s]', '', raw_text).strip()
+            return cleaned or "Not available"
 
-    except Exception as e:
-        print(f"❌ AI Error: {e}")
-        return "2"  # safest fallback for experience
+        except Exception as e:
+            error_msg = str(e)
+            # Check if it's a rate limit error (429)
+            if "429" in error_msg or "quota" in error_msg.lower():
+                if attempt < max_retries - 1:
+                    wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                    print(f"⏳ Rate limited. Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+            
+            print(f"❌ AI Error: {e}")
+            return "2"  # safest fallback for experience
+    
+    return "2"  # final fallback
