@@ -30,7 +30,7 @@ PG_SETTINGS = {
 
 print(f"🔍 Searching for: {QUERY}")
 EXP = os.getenv("SEARCH_EXP", "2")  # default to 0-2 years experience
-SEARCH_URL = f"https://www.naukri.com/{QUERY.replace(' ', '-')}-jobs?experience={EXP}&jobAge=1&glbl_qcrc=1028&ctcFilter=6to10&ctcFilter=10to15"
+SEARCH_URL = f"https://www.naukri.com/{QUERY.replace(' ', '-')}-jobs?experience={EXP}&jobAge=7&glbl_qcrc=1028"
 LOGIN_URL = "https://www.naukri.com/mnjuser/homepage"
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")

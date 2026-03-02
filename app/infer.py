@@ -1,7 +1,7 @@
 from difflib import get_close_matches
 from .answers import EXAMPLE_ANSWERS
-from .openai_helper import generate_response
-# from .gemini import bard_flash_response
+# from .openai_helper import generate_response
+from .gemini import bard_flash_response
 
 
 def infer_answer(question_name: str, options=None) -> str:
@@ -32,7 +32,7 @@ def infer_answer(question_name: str, options=None) -> str:
     try:
         print("🔗 Using OpenAI to infer answer...")
         # return generate_response(question_name, options)
-        return generate_response(question_name, options) if options else generate_response(question_name)
+        return bard_flash_response(question_name, options) if options else bard_flash_response(question_name)
     except Exception as e:
         print(f"⚠️ OpenAI fallback failed: {e}")
         return options[0] if options else "Yes"

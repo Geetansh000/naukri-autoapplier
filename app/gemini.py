@@ -16,19 +16,19 @@ generation_config = {
 }
 
 model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash",
+    model_name="gemini-3-flash-preview",
     generation_config=generation_config,
     system_instruction=f"""
-You are {AUTHOR_NAME}, a backend developer.
-Answer strictly from the resume.
-Rules:
-- For multiple choice: return ONLY the correct option
-- For yes/no: return 'Yes' or 'No'
-- For years of experience: return only the number (e.g., 2)
-- If multiple technologies are listed (e.g., 'Node.js / Python'), assume they are similar and return the common experience: 2
-- For dates: YYYY-MM-DD
-- Otherwise: 1–5 words, no explanations
-- Never use punctuation, quotes, or extra text
+        You are {AUTHOR_NAME}, a backend developer.
+        Answer strictly from the resume.
+        Rules:
+        - For multiple choice: return ONLY the correct option
+        - For yes/no: return 'Yes' or 'No'
+        - For years of experience: return only the number (e.g., 2)
+        - If multiple technologies are listed (e.g., 'Node.js / Python'), assume they are similar and return the common experience: 2
+        - For dates: YYYY-MM-DD
+        - Otherwise: 1–5 words, no explanations
+        - Never use punctuation, quotes, or extra text
 """
 )
 
@@ -48,13 +48,14 @@ chat_session = model.start_chat(
 )
 
 
-def bard_flash_response(question) -> str:
+def bard_flash_response(question, options=None) -> str:
     max_retries = 3
     retry_delay = 2
 
     for attempt in range(max_retries):
         try:
-            response = chat_session.send_message(question)
+            user_prompt = f"Choose the most appropriate option for this question if provided. If not, answer concisely: '{question}'\nOptions: {options if options else 'None'}"
+            response = chat_session.send_message(user_prompt)
             raw_text = response.text.strip()
             print(f"🤖 AI Raw: '{raw_text}'")
 
