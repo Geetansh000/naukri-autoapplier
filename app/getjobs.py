@@ -1,11 +1,9 @@
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from .config import SEARCH_URL
+from .config import SEARCH_URL,SKIP_COMPANIES
 import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from .db import already_applied, mark_applied
-from .apply import apply_to_job
 from .apply_web import apply_web
 
 def apply_once(driver, str1, PAGE=1):
@@ -38,6 +36,10 @@ def apply_once(driver, str1, PAGE=1):
             try:
                 if already_applied(link):
                     print(f"🔁 Already applied: {link}")
+                    continue
+                skip_job = True if any(word in link.lower() for word in SKIP_COMPANIES) else False
+                if skip_job:
+                    print(f"⛔ Skipping job from company: {link}")
                     continue
                 if(apply_web(driver, link)):
                     print(f"✅ Applied to job: {link}")

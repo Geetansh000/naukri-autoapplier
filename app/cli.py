@@ -31,9 +31,11 @@ if __name__ == "__main__":
     try:
         main()
     except (NoSuchWindowException, WebDriverException) as e:
-        print("Browser window closed or session is invalid. Exiting.", e.msg)
+        print("Browser window closed or session is invalid. Exiting.")
+    except KeyboardInterrupt:
+        print("Interrupted by user. Exiting...")
     except Exception as e:
-        print("In Applier Main", e)
+        print("In Applier Main")
         pyautogui.alert(e, "Exiting..")
     finally:
         from random import choice

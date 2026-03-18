@@ -1,6 +1,8 @@
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from .config import HEADLESS
+from .config import HEADLESS, SKIP_WORDS, MUST_HAVE_WORDS
+from selenium.webdriver.common.by import By
 
 
 def get_requests_session_from_selenium(driver):
@@ -20,3 +22,25 @@ def _driver():
     if HEADLESS:
         opts.add_argument("--headless=new")
     return webdriver.Chrome(options=opts)
+
+
+def check_skip_keywords(title: str) -> list[str]:
+    return [
+        keyword for keyword in SKIP_WORDS
+        if re.search(rf'(?<!\w){re.escape(keyword)}(?!\w)', title, re.IGNORECASE)
+    ]
+
+
+def check_must_have_keywords(title: str) -> list[str]:
+    return [
+        word for word in MUST_HAVE_WORDS
+        if re.search(rf'\b{re.escape(word)}\b', title, re.IGNORECASE)
+    ]
+
+
+def find_elements_by_css(driver, selector):
+    try:
+        return driver.find_elements(By.CSS_SELECTOR, selector)
+    except Exception as e:
+        print(f"❌ Could not find elements with selector '{selector}': {e}")
+        return []

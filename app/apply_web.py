@@ -3,10 +3,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from .db import save_external_job
+from app.helpers import check_skip_keywords, check_must_have_keywords, find_elements_by_css
 from app.infer import infer_answer
 import pyautogui
-from .config import SKIP_WORDS, MUST_HAVE_WORDS, AUTHOR_NAME
+from .config import AUTHOR_NAME
 import re
 
 PAUSE_ON_ERROR = True
@@ -14,21 +14,20 @@ PAUSE_ON_ERROR = True
 
 def apply_web(driver, url):
     wait = WebDriverWait(driver, 3)
-    print(f"🔗 Navigating to job URL: {url}")
     driver.get(url)
     time.sleep(1)
 
     try:
         try:
-            apply_buttons = driver.find_elements(
-                By.CSS_SELECTOR, ".styles_jhc__apply-button-container__5Bqnb button")
+            apply_buttons = find_elements_by_css(
+                driver, ".styles_jhc__apply-button-container__5Bqnb button")
             apply_button = apply_buttons[1] if apply_buttons else None
             if not apply_button:
                 if (apply_buttons[0].text.lower().strip() == "applied"):
                     print("❌ Already applied. Skipping.")
                     return True
-                apply_button = driver.find_element(
-                    By.XPATH, "//button[contains(text(), 'Apply')]")
+                apply_button = find_elements_by_css(
+                    driver, "//button[contains(text(), 'Apply')]")
             text = apply_button.text.lower().strip()
             if text not in ["apply"]:
                 match text:
@@ -54,42 +53,34 @@ def apply_web(driver, url):
 
         except Exception as e:
             return print(f"❌ Could not find Apply button: {e}")
-        skip_keywords = SKIP_WORDS
-        must_have_keywords = MUST_HAVE_WORDS
         try:
             title = driver.find_element(By.CSS_SELECTOR, "header")
             title_lower = title.text.lower()
-            print(f"📄 Job Title: {title.text}")
             # ✅ First, check if the title contains any MUST-HAVE keyword
-            contains_must_have = any(
-                must_word.lower() in title_lower for must_word in must_have_keywords
-            )
-            print(f"contains_must_have: {contains_must_have} -- {[
-                  [must_word, must_word.lower() in title_lower] for must_word in must_have_keywords]}")
-            if not contains_must_have:
-                for keyword in skip_keywords:
-                    if keyword.lower() in title_lower or re.search(r"\bjava\b", title_lower, re.IGNORECASE):
-                        # Allow JavaScript jobs (handles javascript, java-script, and java script)
-                        if not re.search(r"java[\s-]?script", title_lower, re.IGNORECASE):
-                            print(f"⛔ Skipping unwanted job1: {title.text}")
-                            return True
+            must_have_keys = check_must_have_keywords(
+                title_lower)
+            if len(must_have_keys):
+                print(
+                    f"contains_must_have-- {must_have_keys}")
+            else:
+                if check_skip_keywords(title):
+                    print(f"⛔ Skipping unwanted job: {title.text}")
+                    return True
 
-                skills = driver.find_elements(
-                    By.CSS_SELECTOR, ".styles_chip__7YCfG")
+                skills = find_elements_by_css(
+                    driver, ".styles_chip__7YCfG")
                 skills_array = [skill.text.lower() for skill in skills]
-                print("Skills:", skills_array)
-                for keyword in must_have_keywords:
-                    if keyword.lower() in skills_array:
-                        contains_must_have = True
-                        print(f"✅ Job contains MUST-HAVE keyword: {keyword}")
-                        break
-                if not contains_must_have:
-                    print(f"⛔ Skipping unwanted job2: {title.text}")
+                must_have_keys = check_must_have_keywords(
+                    " ".join(skills_array))
+                if len(must_have_keys):
+                    print(
+                        f"✅ Job contains MUST-HAVE keyword: {must_have_keys}")
+                elif check_skip_keywords(title):
+                    print(f"⛔ Skipping unwanted job: {title.text}")
                     return True
         except Exception:
             pass
         apply_button.click()
-        print("✅ Clicked 'Apply'.")
         # --- STEP 3: Check immediate success (no questions) ---
         try:
             wait.until(
@@ -111,8 +102,6 @@ def apply_web(driver, url):
             while status:
                 if driver.find_elements(By.CSS_SELECTOR, ".applied-job-content"):
                     print("🎉 Successfully applied (post-answer).")
-                    # applied_count += 1
-                    # applied = True
                     status = False
                     break
 
@@ -173,18 +162,18 @@ def apply_web(driver, url):
                         continue
 
                     # Get AI response
-                    print(f"🤖 AI Question: {question_text}")
+                    print(f"🤖 Question: {question_text}")
                     print(f"   Options: {options_list}")
                     try:
                         ai_response = infer_answer(question_text, options_list)
-                        print(f"💬 AI Answer: {ai_response}")
+                        print(f"💬 Answer: {ai_response}")
                         for idx, option in enumerate(options_list):
                             if ai_response.lower() in option.lower():
                                 selected_index = idx + 1
                                 break
                     except Exception as e:
                         print(
-                            f"🤖 AI parsing failed: {e}. Defaulting to 1.")
+                            f"🤖 Parsing failed: {e}. Defaulting to 1.")
                         selected_index = 1
 
                     if selected_index not in value_map:
@@ -309,7 +298,6 @@ def apply_web(driver, url):
                     )
                     driver.execute_script(
                         "arguments[0].click();", save_div)
-                    print("💾 Saved answer.")
                 except Exception as e:
                     print(f"❌ Save button click failed: {e}")
                     continue

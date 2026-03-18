@@ -16,6 +16,7 @@ HEADLESS = os.getenv("RUN_HEADLESS", "False").lower() in ("1", "true", "yes")
 # split and drop empty entries
 SKIP_WORDS = [word.strip() for word in os.getenv("SKIP_WORDS", "").split(",") if word.strip()]
 MUST_HAVE_WORDS = [word.strip() for word in os.getenv("MUST_HAVE_WORDS", "").split(",") if word.strip()]
+SKIP_COMPANIES = [word.strip() for word in os.getenv("SKIP_COMPANIES", "").split(",") if word.strip()]
 API_KEY = os.getenv("API_KEY")
 DB_PATH = ROOT / "applied_jobs.db"
 RESULTS_PER_RUN = 20  # stop after first N jobs each run
@@ -30,7 +31,7 @@ PG_SETTINGS = {
 
 print(f"🔍 Searching for: {QUERY}")
 EXP = os.getenv("SEARCH_EXP", "2")  # default to 0-2 years experience
-SEARCH_URL = f"https://www.naukri.com/{QUERY.replace(' ', '-')}-jobs?experience={EXP}&jobAge=7&glbl_qcrc=1028"
+SEARCH_URL = f"https://www.naukri.com/{QUERY.replace(' ', '-')}-jobs?experience={EXP}&jobAge=7&glbl_qcrc=1028&ctcFilter=10to15"
 LOGIN_URL = "https://www.naukri.com/mnjuser/homepage"
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
