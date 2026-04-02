@@ -63,7 +63,7 @@ def apply_web(driver, url):
                 print(
                     f"contains_must_have-- {must_have_keys}")
             else:
-                if check_skip_keywords(title):
+                if len(check_skip_keywords(title.text)):
                     print(f"⛔ Skipping unwanted job: {title.text}")
                     return True
 
@@ -75,7 +75,7 @@ def apply_web(driver, url):
                 if len(must_have_keys):
                     print(
                         f"✅ Job contains MUST-HAVE keyword: {must_have_keys}")
-                elif check_skip_keywords(title):
+                elif check_skip_keywords(title.text):
                     print(f"⛔ Skipping unwanted job: {title.text}")
                     return True
         except Exception:
