@@ -28,6 +28,9 @@ model = genai.GenerativeModel(
         - For dates: YYYY-MM-DD
         - Otherwise: 1–5 words, no explanations
         - Never use punctuation, quotes, or extra text
+        - If you don't know the answer, make the most reasonable assumption based on the resume, but never say "I don't know". Always provide an answer.
+        - If questions have yes/no options, prefer "Yes" if the resume doesn't explicitly confirm the skill/experience.
+        - for questions about experience with a technology, if the resume lists it without years, assume 2 years of experience.
 """
 )
 

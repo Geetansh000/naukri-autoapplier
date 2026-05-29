@@ -4,4 +4,5 @@ app/__pycache__
 .env
 answers.txt
 app/answers.json
+app/answers-options.json
 */bio.py
